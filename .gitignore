@@ -71,9 +71,6 @@ instance/
 # Sphinx documentation
 docs/_build/
 
-# Input data
-data
-
 # PyBuilder
 target/
 
@@ -130,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Input data
+data
+plagiarism_data
+test_csv
+notebook_ims
