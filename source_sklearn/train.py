@@ -3,11 +3,12 @@ from __future__ import print_function
 import argparse
 import os
 import pandas as pd
+import numpy as np
 
 from sklearn.externals import joblib
 
 ## TODO: Import any additional libraries you need to define a model
-
+from sklearn.linear_model import SGDClassifier
 
 # Provided model load function
 def model_fn(model_dir):
@@ -39,6 +40,16 @@ if __name__ == '__main__':
     parser.add_argument('--data-dir', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
     
     ## TODO: Add any additional arguments that you will need to pass into your model
+    parser.add_argument('--max_iter', type=int, default=1000, metavar='N',
+                        help='The maximum number of epochs (default: 100)')
+    parser.add_argument('--learning_rate', type=str, default='optimal', metavar='S',
+                        help='Learning rate scheduler (default: optimal)')
+    parser.add_argument('--eta0', type=float, default=0.0, metavar='N',
+                        help='Initial learning rate; ignored if the scheduler is set to "optimal" (default: 0.0)')
+    parser.add_argument('--n_iter_no_change', type=int, default=5, metavar='N',
+                        help='Number of iterations with no significant loss change before early stopping (default: 5)')
+    parser.add_argument('--tol', type=float, default=1e-3, metavar='N',
+                        help='Any loss change below this value with not be considered a change; used with early stopping (default: 1e-3)')
     
     # args holds all passed-in arguments
     args = parser.parse_args()
@@ -48,19 +59,23 @@ if __name__ == '__main__':
     train_data = pd.read_csv(os.path.join(training_dir, "train.csv"), header=None, names=None)
 
     # Labels are in the first column
-    train_y = train_data.iloc[:,0]
-    train_x = train_data.iloc[:,1:]
+    train_y = train_data.iloc[:, 0]
+    train_x = train_data.iloc[:, 1:]
     
     
     ## --- Your code here --- ##
-    
-
     ## TODO: Define a model 
-    model = None
-    
+    model = SGDClassifier(max_iter=args.max_iter,
+                          learning_rate=args.learning_rate,
+                          eta0=args.eta0,
+                          n_iter_no_change=args.n_iter_no_change,
+                          tol=args.tol,
+                          validation_fraction=0.2,
+                          random_state=77
+                         )
     
     ## TODO: Train the model
-    
+    model.fit(train_x, np.ravel(train_y))
     
     
     ## --- End of your code  --- ##
